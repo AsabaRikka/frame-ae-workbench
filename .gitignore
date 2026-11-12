@@ -9,11 +9,12 @@ __pycache__/
 build/
 releases/
 ae_workbench/data-v1/
-
+ae_workbench/local-reference/
+docs/local/
+.venv/
 .env
 .env.*
 !.env.example
-.venv/
 *.log
 *.aep
 *.aepx

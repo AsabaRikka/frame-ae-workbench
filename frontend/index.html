@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><link rel="icon" href="data:,"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>帧场 · AE 批量工作台</title><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/simple.css"></head>
+<body>
+<aside class="rail">
+  <a class="brand" href="/" aria-label="帧场首页"><span class="brand-mark">F.</span><div>帧场<small>FRAME WORKBENCH</small></div></a>
+  <div class="rail-label">工作空间 <span class="version">V1.1</span></div>
+  <button class="nav active" data-tab="catalog"><span>▦</span> 工程素材 <b id="catalogCount">—</b></button>
+  <button class="nav" data-tab="combinations"><span>⊞</span> 组合计划 <b id="combinationCount">0</b></button>
+  <button class="nav" data-tab="queue"><span>≡</span> 导出队列 <b id="queueCount">0</b></button>
+  <span hidden id="assetCount"></span><span hidden id="planCount"></span>
+  <div class="rail-project"><div class="rail-label">当前工程</div><strong class="current-project-title">当前工程</strong><p id="projectName">无标题项目.aep</p><span class="tag" id="projectSize">待扫描</span><span class="tag" id="projectDuration">—</span><button class="text-button" id="changeProject">切换工程 ↗</button></div>
+  <div class="rail-foot"><span class="status-dot"></span> 本地工作空间<p>原始工程保留 · 配置自动保存</p><button class="text-button" id="openOutput">打开输出文件夹 ↗</button></div>
+</aside>
+<div class="workspace">
+  <header><div class="breadcrumb">工作空间 <span>/</span> <span class="current-project-title">当前工程</span> <span>/</span> <strong id="crumb">快速替换</strong></div><div class="header-right"><span class="connection" id="connection">AE 2022 · 检查中</span><button class="button small" data-video-settings>视频导出设置</button><button class="button small" id="generationSettings">AI 生成设置</button><button class="button small" id="environmentSettings">环境设置</button><button class="button small" id="shutdownApp">退出工作台</button><button class="button small" id="scan">重新扫描工程</button></div></header>
+  <main>
+    <div class="page-heading"><div><div class="eyebrow">AE WORKBENCH / 快速替换</div><h1 id="title">选好文件夹，就能替换。</h1><p id="subtitle">想改哪一项，就给它选择新素材文件夹。留空的项目保持原样。</p></div><button class="button primary" id="primaryAction" hidden>生成迭代搭配 <span>↗</span></button></div>
+    <div class="notice" id="notice" hidden></div><div class="notice" id="environmentNotice" hidden>尚未找到 After Effects，请先配置本机 AE。<button class="text-button" id="setupEnvironment">设置 AE 路径 ↗</button></div>
+    <section id="catalogView" class="view">
+      <div class="catalog-project"><label for="catalogProject">已扫描工程</label><select id="catalogProject"></select><button class="button primary" id="importProject">＋ 导入工程文件夹</button><span id="catalogSummary"></span></div>
+      <div class="catalog-tools"><input id="catalogSearch" type="search" placeholder="搜索子弹、箱子、死亡、战车，或合成 / 图层名称" aria-label="搜索工程素材"><select id="catalogKind" aria-label="素材类型"><option value="all">源素材 + 组合素材</option><option value="sequence">序列帧</option><option value="animated">所有动画 / 视频</option><option value="source">单个源素材</option><option value="group">整个组合</option><option value="selected">已选替换</option><option value="control">控制 / 纯色</option><option value="procedural">文字 / 形状图层</option></select></div>
+      <div class="catalog-categories" id="catalogCategories"></div>
+      <p class="catalog-hint">下图来自原工程。鼠标停在图片上可播放动画，点击打开完整预览与 AI 生成；相同素材的全部引用会一起替换。名称分类仅供查找。</p>
+      <div id="catalogGrid" class="catalog-grid"></div>
+      <div class="catalog-export"><div><strong id="catalogSelected">尚未选择替换</strong><small id="catalogCapacity">留空保持原样</small></div><label>计划数量 <input id="catalogQuantity" type="number" min="1" max="500" value="1"></label><button class="button primary" id="createCatalogPlans">生成不同组合计划</button><button class="button" id="viewCatalogPlans">预览组合计划</button></div>
+    </section>
+    <section id="combinationsView" class="view" hidden><div class="combination-toolbar"><strong id="combinationSummary"></strong><button class="button" id="combinationBack">添加 / 管理候选</button><button class="button" id="combinationSave">保存调整</button></div><p class="dialog-help">这里预览每份作品的素材搭配，不是 AE 合成画面的实时渲染。可修改候选与名称，或只勾选部分计划导出。</p><div id="combinationList"></div><div class="combination-export"><label>导出前 <input type="number" id="combinationQuantity" min="1" max="500" value="1"> 份</label><button class="button small" id="combinationSelectCount">按数量勾选</button><span id="combinationSelected"></span><select id="catalogComp" aria-label="视频输出合成"></select><button class="button" data-video-settings>视频设置</button><button class="button" id="catalogAep">生成所选工程</button><button class="button primary" id="catalogVideo">生成所选工程 + 视频</button></div></section>
+    <section id="simpleView" class="view" hidden>
+      <div class="simple-step"><span>1</span><div><h2>选择要替换的素材</h2><p>自动识别动画序列，并匹配原素材尺寸。</p></div><button class="text-button" id="checkFolders">重新读取文件夹 ↻</button></div>
+      <div id="folderCards" class="folder-cards"></div>
+      <div id="simpleIssues" role="status" class="simple-issues" hidden></div>
+      <div class="simple-step second"><span>2</span><div><h2>生成新工程</h2><p>直接生成 1 份；需要批量时，调整下面的数量。</p></div></div>
+      <div class="simple-output">
+        <div class="simple-count"><label for="simpleCount">生成数量</label><div><input id="simpleCount" type="number" value="1" min="1" max="500"><span>份</span></div><small id="simpleCapacity">先选择素材文件夹</small></div>
+        <div class="simple-actions"><button class="button primary" id="simpleProject">生成替换工程 <span>↗</span></button><button class="button" id="simpleVideo">生成工程 + 视频</button></div>
+        <div id="simpleStatus" class="simple-status"></div>
+        <details class="simple-options"><summary>更多选项与自动对应详情</summary><div class="field"><label for="simpleComp">视频输出合成</label><select id="simpleComp"></select></div><div id="simpleMapping"></div><p class="dialog-help">根据工程名称和使用位置对应移动、攻击、死亡等动作。没有提供的动作保持原样；不能确定时会提示。尺寸适配默认开启：图片序列按整套动画的可见范围等比例缩放，角色脚底对齐；背景等比例铺满，可能裁边。视频和动态 GIF 按画布适配。保留原图层动画，动作时长不自动拉伸。</p></details>
+      </div>
+      <div id="simpleRecent" class="simple-recent"></div>
+    </section>
+    <section id="assetsView" class="view" hidden>
+      <div class="asset-layout">
+        <div class="asset-work">
+          <div class="section-heading"><h2>替换位置 <span id="slotCount">0</span></h2><button class="text-button" id="editSlots">配置替换位置 ↗</button></div>
+          <div class="slots" id="slots"></div>
+          <div class="selection-summary" id="selectionSummary"></div>
+          <div class="library-head"><div><h2>素材库 <span id="libraryCount">0</span></h2><p>图片、动画序列与视频，集中管理</p></div><button class="button" id="import">＋ 导入素材目录</button></div>
+          <div class="filter-bar"><div class="filters"><button class="filter active" data-filter="all">全部</button><button class="filter" data-filter="image">图片</button><button class="filter" data-filter="sequence">序列动画</button><button class="filter" data-filter="video">视频</button></div><input type="search" id="search" placeholder="搜索名称或文件夹" aria-label="搜索素材"></div>
+          <div class="asset-grid" id="assetGrid"></div>
+          <div class="empty" id="emptyLibrary" hidden>没有符合条件的素材，换个关键词试试。</div>
+        </div>
+        <aside class="preview"><div class="preview-head"><h2>原片参考</h2><span class="tag">原始成片</span></div><div class="video-wrap"><video id="referenceVideo" controls preload="metadata"></video></div><div class="preview-info"><strong class="current-project-title">当前工程</strong><p>替换效果需在 AE 渲染后查看，此处播放原片。</p></div><div class="divider"></div><div class="preview-head"><h2>当前配置</h2><span id="candidateTotal">0 个候选</span></div><div id="configSummary"></div><div class="preview-hint">先替换一份，确认角色大小、动作和位置，再批量导出。</div></aside>
+      </div>
+    </section>
+    <section id="plansView" class="view" hidden><div class="plan-controls"><div><label>生成数量</label><div class="number-field"><input id="quantity" type="number" min="1" max="500" value="50"><span>份</span></div></div><div class="combo-capacity"><strong id="capacity">0</strong><span>种可用的不重复搭配</span></div><button class="button primary" id="generate">随机生成搭配</button><button class="button" id="downloadManifest">下载搭配清单</button></div><div class="table-toolbar"><h2>搭配清单 <span id="tableCount">0</span></h2><span>可逐项调整，保存时会检查重复</span><button class="button small" id="savePlans">保存调整</button></div><div class="table-wrap" id="plansTable"></div><div class="export-bar"><div><label for="comp">输出合成</label><select id="comp"></select></div><label class="checkbox"><input type="checkbox" id="render" checked>同时导出 MP4</label><div class="grow"></div><button class="button" id="sample">先导出第 1 份</button><button class="button primary" id="exportAll">批量导出</button></div></section>
+    <section id="queueView" class="view" hidden><div class="queue-top"><p>每项独立保存，失败任务可重试。停止将在当前一项完成后生效。</p><button class="button" id="cancel">完成当前项后停止</button></div><div id="batches"></div></section>
+    <footer><span>帧场 / AE 工程批量迭代</span><span>选择文件夹 → 生成新工程</span></footer>
+  </main>
+</div>
+<dialog id="dialog"><form id="dialogForm"><div class="dialog-head"><h2 id="dialogTitle"></h2><button type="button" class="close" id="closeDialog" aria-label="关闭">×</button></div><div id="dialogBody"></div><div class="dialog-actions"><button type="button" class="button" id="cancelDialog">取消</button><button class="button primary" id="dialogSubmit" type="submit">保存</button></div></form></dialog>
+<div id="toast" role="status" hidden></div>
+<link rel="stylesheet" href="/css/catalog.css"><link rel="stylesheet" href="/css/queues.css"><script src="/js/queues.js"></script><script src="/js/app.js"></script><script src="/js/catalog.js"></script><link rel="stylesheet" href="/css/combinations.css"><script src="/js/combinations.js"></script><script src="/js/environment.js"></script><link rel="stylesheet" href="/css/media.css"><script src="/js/media.js"></script><script src="/js/hover.js"></script><script src="/js/export-settings.js"></script>
+</body></html>
